@@ -32,7 +32,6 @@ public class UserSignInFXMLController implements Initializable {
     
     @FXML
     protected void signIn(ActionEvent event){
-        System.out.println("Signing In");
         Users users = new Users();
         users.userSignIn(this, usernameTextField.getText(), userPasswordPasswordField.getText());
     }
