@@ -18,9 +18,9 @@ import javafx.scene.control.Alert;
  */
 public class DBConnection {
     private Connection connection;
-    private final String url = "jdbc:mysql://ns8139.hostgator.com/cmeehan_auctioneer?useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"; 
-    private final String dbUser = "cmeehan_auction";
-    private final String dbPass = "Wadiver15!";
+    private final String url = "jdbc:mysql://localhost:3306/auction?useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"; //"jdbc:mysql://ns8139.hostgator.com/cmeehan_auctioneer?useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC"; 
+    private final String dbUser ="root"; //"cmeehan_auction";
+    private final String dbPass = "root"; //"Wadiver15!";
     
     /**
      * Connect to the database. 

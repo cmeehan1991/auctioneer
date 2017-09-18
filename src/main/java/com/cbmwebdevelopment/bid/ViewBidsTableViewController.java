@@ -5,10 +5,12 @@
  */
 package com.cbmwebdevelopment.bid;
 
+import com.cbmwebdevelopment.items.ItemMain;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 
@@ -38,7 +40,11 @@ public class ViewBidsTableViewController {
         amountColumn.setCellValueFactory(new PropertyValueFactory<>("amount"));
         amountColumn.prefWidthProperty().bind(tableView.widthProperty().multiply(0.15));
         
+        
+        // Set the columns
         tableView.getColumns().setAll(idColumn, itemNameColumn, bidderNameColumn, amountColumn);
+        
+        // Set the items
         tableView.getItems().setAll(data);
     }
     

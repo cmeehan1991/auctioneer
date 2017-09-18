@@ -5,6 +5,7 @@
  */
 package com.cbmwebdevelopment.items;
 
+import com.cbmwebdevelopment.bid.BidFXMLController;
 import com.cbmwebdevelopment.connections.DBConnection;
 import java.io.File;
 import java.io.FileInputStream;
@@ -42,16 +43,15 @@ public class Item {
 
         String sql = null;
         if (controller.itemNumber.trim().isEmpty() || controller.itemNumber == null) {
-            sql = "INSERT INTO AUCTION_ITEMS(NAME, IMAGES, DESCRIPTION, RESERVE, SILENT_AUCTION, LIVE_AUCTION, CLOSED) VALUES(?,?,?,?,?,?,?)";
+            sql = "INSERT INTO AUCTION_ITEMS(NAME, DESCRIPTION, RESERVE, SILENT_AUCTION, LIVE_AUCTION, CLOSED) VALUES(?,?,?,?,?,?,?)";
             try {
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, controller.itemName);
-                ps.setString(2, itemImage(controller.itemImage));
-                ps.setString(3, controller.itemDescription);
-                ps.setString(4, controller.minimumBid);
-                ps.setBoolean(5, controller.silentAuction);
-                ps.setBoolean(6, controller.liveAuction);
-                ps.setBoolean(7, false);
+                ps.setString(2, controller.itemDescription);
+                ps.setString(3, controller.minimumBid);
+                ps.setBoolean(4, controller.silentAuction);
+                ps.setBoolean(5, controller.liveAuction);
+                ps.setBoolean(6, false);
                 ps.executeUpdate();
                 ResultSet key = ps.getGeneratedKeys();
                 if (key.next()) {
@@ -71,18 +71,17 @@ public class Item {
                     System.err.println(ex.getMessage());
                 }
             }
-        }else{
-            sql = "UPDATE AUCTION_ITEMS SET NAME = ?, IMAGES = ?, DESCRIPTION = ?, RESERVE = ?, SILENT_AUCTION = ?, LIVE_AUCTION = ?, CLOSED = ? WHERE ID = ?";
+        } else {
+            sql = "UPDATE AUCTION_ITEMS SET NAME = ?, DESCRIPTION = ?, RESERVE = ?, SILENT_AUCTION = ?, LIVE_AUCTION = ?, CLOSED = ? WHERE ID = ?";
             try {
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, controller.itemName);
-                ps.setString(2, itemImage(controller.itemImage));
-                ps.setString(3, controller.itemDescription);
-                ps.setString(4, controller.minimumBid);
-                ps.setBoolean(5, controller.silentAuction);
-                ps.setBoolean(6, controller.liveAuction);
-                ps.setBoolean(7, false);
-                ps.setString(8, controller.itemNumber);
+                ps.setString(2, controller.itemDescription);
+                ps.setString(3, controller.minimumBid);
+                ps.setBoolean(4, controller.silentAuction);
+                ps.setBoolean(5, controller.liveAuction);
+                ps.setBoolean(6, false);
+                ps.setString(7, controller.itemNumber);
                 int rs = ps.executeUpdate();
                 if (rs > 0) {
                     Alert alert = new Alert(AlertType.CONFIRMATION);
@@ -102,55 +101,6 @@ public class Item {
             }
         }
 
-    }
-
-    private String itemImage(File itemImage) {
-        String imageSavedTo = null;
-        if (itemImage != null) {
-            Date date = new Date();
-            String today = dateFormat.format(date);
-            String year = dateYear.format(date);
-            String month = dateMonth.format(date);
-            String day = dateDay.format(date);
-
-            String server = "ns8139.hostgator.com";
-            int port = 21;
-            String user = "cmeehan";
-            String pass = "Wadiver15!";
-
-            FTPClient ftpClient = new FTPClient();
-
-            try {
-                ftpClient.connect(server, port);
-                ftpClient.login(user, pass);
-                ftpClient.enterLocalPassiveMode();
-                ftpClient.changeWorkingDirectory("public_html/AuctionManager/Uploads/");
-                int replyCode = ftpClient.getReplyCode();
-                System.out.println(replyCode);
-                if (replyCode == 550) {
-                    ftpClient.makeDirectory("public_html/AuctionManager/Uploads");
-                    ftpClient.changeWorkingDirectory("public_html/AuctionManager/Uploads/");
-                }
-
-                ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
-
-                String remoteFile = itemImage.getName();
-
-                InputStream inputStream = new FileInputStream(itemImage);
-
-                boolean done = ftpClient.storeFile(remoteFile, inputStream);
-                if (done) {
-                    System.out.println("Uploaded successfully");
-                }
-                inputStream.close();
-                imageSavedTo = "http://ns8139.hostgator.com/public_html/AuctionManager/Uploads/" + itemImage.getName();
-            } catch (IOException ex) {
-                System.err.println(ex.getMessage());
-                imageSavedTo = null;
-            }
-        }
-
-        return imageSavedTo;
     }
 
     protected HashMap<String, String> getValues(String itemId) {
@@ -182,5 +132,32 @@ public class Item {
             }
         }
         return results;
+    }
+
+    public void getItem(String id, BidFXMLController controller) {
+        Connection conn = new DBConnection().connect();
+        String sql = "SELECT NAME, DESCRIPTION, CLOSED FROM AUCTION_ITEMS WHERE ID = ?";
+        try {
+            PreparedStatement ps = conn.prepareStatement(sql);
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                controller.itemNameTextField.setText(rs.getString("NAME"));
+                controller.itemDescriptionTextField.setText(rs.getString("DESCRIPTION"));
+                if(rs.getBoolean("CLOSED")){
+                    controller.submitWinnerButton.setDisable(true);
+                }else{
+                    controller.submitWinnerButton.setDisable(false);
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        } finally {
+            try {
+                conn.close();
+            } catch (SQLException ex) {
+                System.err.println(ex.getMessage());
+            }
+        }
     }
 }

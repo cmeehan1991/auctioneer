@@ -50,8 +50,6 @@ public class ItemMain extends Application {
                 controller.silentAuctionRadioButton.setSelected(Boolean.parseBoolean(item.get("silentAuction")));
                 controller.liveAuctionRadioButton.setSelected(Boolean.parseBoolean(item.get("liveAuction")));
                 controller.itemClosedLabel.setVisible(Boolean.parseBoolean(item.get("closed")));
-                controller.itemImage = item.get("imageUrl") == null ? new File(getClass().getResource("/images/auction.jpg").getFile()) : new File(item.get("imageUrl"));
-                controller.itemImageImageView.setImage(new Image(controller.itemImage.toURI().toURL().toString()));
        }
        
        Window window = new Window("Item");

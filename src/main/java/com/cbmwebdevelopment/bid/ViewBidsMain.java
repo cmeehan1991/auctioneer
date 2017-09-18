@@ -26,6 +26,7 @@ public class ViewBidsMain extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ViewBidsFXML.fxml"));
         Parent root = (Parent) loader.load();
         ViewBidsFXMLController controller = (ViewBidsFXMLController) loader.getController();
+        controller.group = group;
         
         Window window = new Window("View Bids");
         window.setBoundsListenerEnabled(true);

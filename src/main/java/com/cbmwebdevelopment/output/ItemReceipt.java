@@ -25,6 +25,15 @@ import com.itextpdf.layout.element.Table;
 import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.HorizontalAlignment;
+import java.awt.EventQueue;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
+import java.awt.print.PageFormat;
+import java.awt.print.Paper;
+import java.awt.print.Printable;
+import java.awt.print.PrinterException;
+import java.awt.print.PrinterJob;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -51,6 +60,10 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.printing.PDFPageable;
+import org.apache.pdfbox.rendering.ImageType;
+import org.apache.pdfbox.rendering.PDFRenderer;
 
 /**
  *
@@ -61,6 +74,9 @@ public class ItemReceipt {
     private final String bidderId, bidderName, numberOfItems, totalDue, billingAddress;
     private final TableView tableView;
     private final String USER_HOME = System.getProperty("user.home");
+    private final String OS = System.getProperty("os.name");
+    private PrinterJob job;
+    private String temp;
 
     public ItemReceipt(String bidderId, String bidderName, String numberOfItems, String totalDue, String billingAddress, TableView tableView) {
         this.bidderId = bidderId;
@@ -71,12 +87,53 @@ public class ItemReceipt {
         this.tableView = tableView;
     }
 
-    public ItemReceipt() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    private static void invokeInUI(Runnable run) {
+        if (EventQueue.isDispatchThread()) {
+            run.run();
+        } else {
+            EventQueue.invokeLater(run);
+        }
+    }
+
+    /**
+     * Print the receipt.
+     *
+     * @param id
+     */
+    public void printReceipt(String id) {
+        job = PrinterJob.getPrinterJob();
+        PageFormat format = job.defaultPage();
+
+        job.setPrintable(null, format);
+
+        if (OS.contains("Mac")) {
+            temp = "/tmp/" + id + ".pdf";
+        }
+
+        if (OS.contains("Windows")) {
+            temp = "/local/" + id + ".pdf";
+        }
+
+        invokeInUI(() -> {
+            try {
+                job.setPageable(new PDFPageable(printablePdf(temp)));
+                // Open the print dialog
+                if (job.printDialog()) {
+                    job.print();
+                }
+            } catch (PrinterException | IOException | NullPointerException ex) {
+                System.err.println(ex.getMessage());
+                ArrayList<String> errors = new ArrayList<>();
+                errors.add(ex.getMessage());
+                Alert alert = new Alerts().errorAlert("Printer Error", "Failed to print invoice.", "Error:", errors);
+                alert.showAndWait();
+            }
+        });
+
     }
 
     public void emailPDF(String id, String recipient) throws IOException, FileNotFoundException, ParseException {
-         // Set up the email
+        // Set up the email
         String smtpHost = "mail.cbmwebdevelopment.com";
         int smtpPort = 25;
 
@@ -113,18 +170,14 @@ public class ItemReceipt {
             mimeMultiPart.addBodyPart(textBodyPart);
             mimeMultiPart.addBodyPart(pdfBodyPart);
 
-            System.out.println("Constructed the mime multi part");
-
             // create the sender/recipient addresses
             InternetAddress iaSender = new InternetAddress(sender);
             InternetAddress iaRecipient = new InternetAddress("cmeehan@elon.edu");
 
-            System.out.println("Created the sender/recipient");
-
             // Construct the mime message
             MimeMessage mimeMessage = new MimeMessage(session);
             // Check if there is only one recipient or handle multiple
-             if (recipient.contains(";")) {
+            if (recipient.contains(";")) {
                 String[] recipients = recipient.trim().split(";");
                 for (String to : recipients) {
                     mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
@@ -179,13 +232,20 @@ public class ItemReceipt {
         pdf(saveTo, null);
     }
 
+    public PDDocument printablePdf(String dest) throws IOException {
+        PDDocument pdf = PDDocument.load(new File(dest));
+        return pdf;
+    }
+
     public Document pdf(String fileDest, ByteArrayOutputStream byteDest) throws FileNotFoundException, IOException, ParseException {
+        System.out.println("Creating Document");
         PdfWriter writer;
-        if(fileDest != null){
+        if (fileDest != null) {
+            System.out.println("File: " + fileDest);
             writer = new PdfWriter(fileDest);
-        }else if(byteDest != null){
+        } else if (byteDest != null) {
             writer = new PdfWriter(byteDest);
-        }else{
+        } else {
             Alert alert = new Alert(AlertType.ERROR);
             alert.setTitle("Invalid Destination");
             alert.setHeaderText("Invalide file destination selected.");
@@ -207,11 +267,13 @@ public class ItemReceipt {
         document.add(new Paragraph("Thank you for your contribution to the continued success of The Pregnancy Center of Hilton Head")
                 .setFontSize(18)
                 .setFont(PdfFontFactory.createFont(FontConstants.TIMES_BOLD))
-        .setUnderline());
+                .setUnderline());
         document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
         document.add(disclaimer());
 
         document.close();
+
+        System.out.println("Closed");
 
         return document;
     }

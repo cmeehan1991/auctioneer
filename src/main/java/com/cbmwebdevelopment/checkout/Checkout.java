@@ -59,7 +59,10 @@ public class Checkout {
                 conn.close();
             } catch (SQLException ex) {
                 System.err.println(ex.getMessage());
+            }finally{
+                controller.progressIndicator.setVisible(false);
             }
+            
         }   
     }
     

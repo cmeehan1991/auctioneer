@@ -53,6 +53,12 @@ public class CheckoutFXMLController implements Initializable {
     private String bidderId;
 
     @FXML
+    protected void printReceipt(ActionEvent event){
+        ItemReceipt itemReceipt = new ItemReceipt(bidderIdTextField.getText(), bidderNameTextField.getText(), totalItemsTextField.getText(), totalAmountTextField.getText(), billingAddressTextArea.getText(), bidderItemsTableView);
+        itemReceipt.printReceipt(bidderIdTextField.getText());
+    }
+    
+    @FXML
     protected void emailReceipt(ActionEvent event) throws IOException, FileNotFoundException, ParseException {
         TextInputDialog dialog = new TextInputDialog();
         dialog.setTitle("Set recipient");
@@ -68,7 +74,7 @@ public class CheckoutFXMLController implements Initializable {
     }
 
     @FXML
-    protected void printReceipt(ActionEvent event) throws FileNotFoundException, IOException, ParseException {
+    protected void saveReceipt(ActionEvent event) throws FileNotFoundException, IOException, ParseException {
         ItemReceipt itemReceipt = new ItemReceipt(bidderIdTextField.getText(), bidderNameTextField.getText(), totalItemsTextField.getText(), totalAmountTextField.getText(), billingAddressTextArea.getText(), bidderItemsTableView);
         itemReceipt.saveAsPDF();
     }
@@ -76,12 +82,11 @@ public class CheckoutFXMLController implements Initializable {
     protected void getCheckoutInformation(String bidderId, CheckoutFXMLController controller) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
-            Platform.runLater(() -> Notifications.create().title("Title").text("Text here").darkStyle().showConfirm());
             Platform.runLater(() -> {
                 Checkout checkout = new Checkout();
                 checkout.getUserInformation(bidderId, controller);
                 executor.shutdown();
-
+                
             });
         });
     }
