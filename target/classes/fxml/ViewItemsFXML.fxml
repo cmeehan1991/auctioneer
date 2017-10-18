@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ButtonBar?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="780.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cbmwebdevelopment.items.ViewItemsFXMLController">
+   <children>
+      <TableView fx:id="itemsTableView" layoutY="46.0" prefHeight="354.0" prefWidth="806.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="46.0" />
+      <GridPane hgap="5.0" layoutX="8.0" layoutY="14.0" prefHeight="40.0" prefWidth="763.0" AnchorPane.leftAnchor="8.0" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="0.0">
+         <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="154.0" minWidth="0.0" prefWidth="65.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="469.0" minWidth="10.0" prefWidth="327.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="435.0" minWidth="5.0" prefWidth="39.0" />
+            <ColumnConstraints hgrow="SOMETIMES" maxWidth="432.0" minWidth="10.0" prefWidth="318.0" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints minHeight="10.0" vgrow="SOMETIMES" />
+         </rowConstraints>
+         <children>
+            <Label text="Search:" />
+            <TextField fx:id="searchTextField" onAction="#searchForItem" prefHeight="27.0" prefWidth="282.0" GridPane.columnIndex="1" />
+            <Button accessibleText="Search" mnemonicParsing="false" onAction="#searchForItem" prefHeight="30.0" prefWidth="33.0" GridPane.columnIndex="2">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/search.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <ButtonBar prefHeight="40.0" prefWidth="288.0" GridPane.columnIndex="3">
+              <buttons>
+                  <Button mnemonicParsing="false" onAction="#addNewItem" text="New" />
+                <Button mnemonicParsing="false" onAction="#viewSelectedItems" text="View" />
+                  <Button mnemonicParsing="false" onAction="#deleteSelectedItems" text="Delete" />
+              </buttons>
+            </ButtonBar>
+         </children>
+      </GridPane>
+   </children>
+</AnchorPane>

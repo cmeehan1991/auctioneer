@@ -52,6 +52,7 @@ public class BidderMain extends Application {
                     controller.cityTextField.setText(bidderInfo.get("city"));
                     controller.stateComboBox.getSelectionModel().select(bidderInfo.get("state"));
                     controller.postalCodeTextField.setText(bidderInfo.get("postalCode"));
+                    controller.group = group;
                 }else{
                     Alert alert = new Alerts().errorAlert("Invalid Bidder Id", "Invalid Bidder Id", "The bidder ID you entered does not match anything on record. Please try again.", null);
                     alert.showAndWait();

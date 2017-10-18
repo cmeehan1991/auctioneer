@@ -19,14 +19,23 @@
          <children>
             <ButtonBar layoutX="400.0" layoutY="3.0" prefHeight="40.0" prefWidth="200.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="3.0">
               <buttons>
-                <Button minWidth="48.0" mnemonicParsing="false" onAction="#saveBidder" prefHeight="60.0">
+                <Button minWidth="48.0" mnemonicParsing="false" onAction="#checkOut" prefHeight="60.0">
+                     <graphic>
+                        <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../images/export.png" />
+                           </image>
+                        </ImageView>
+                     </graphic></Button>
+                  <Button minWidth="48.0" mnemonicParsing="false" onAction="#saveBidder" prefHeight="60.0">
                      <graphic>
                         <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@../images/save.png" />
                            </image>
                         </ImageView>
-                     </graphic></Button>
+                     </graphic>
+                  </Button>
               </buttons>
                <padding>
                   <Insets right="5.0" />

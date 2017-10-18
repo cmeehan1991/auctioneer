@@ -7,14 +7,22 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-
-<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/8.0.111" fx:controller="com.cbmwebdevelopment.bid.ViewBidsFXMLController">
+<AnchorPane id="AnchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.cbmwebdevelopment.bid.ViewBidsFXMLController">
    <children>
       <ButtonBar prefHeight="57.0" prefWidth="600.0" style="-fx-background-color: #4e4e4e;" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
         <buttons>
+            <Button mnemonicParsing="false" onAction="#exportData" prefHeight="78.0">
+               <graphic>
+                  <ImageView fitHeight="43.0" fitWidth="43.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/export.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
             <Button accessibleHelp="Refresh bid feed" accessibleText="Refresh Feed" minWidth="59.0" mnemonicParsing="false" onAction="#refreshFeed" prefHeight="53.0">
                <graphic>
-                  <ImageView fitHeight="43.0" fitWidth="103.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true">
+                  <ImageView fitHeight="43.0" fitWidth="43.0" nodeOrientation="RIGHT_TO_LEFT" pickOnBounds="true" preserveRatio="true">
                      <image>
                         <Image url="@../images/refresh-icon.png" />
                      </image>

@@ -5,6 +5,7 @@
  */
 package com.cbmwebdevelopment.checkout;
 
+import com.cbmwebdevelopment.tablecontrollers.CheckoutItemTableViewController;
 import com.cbmwebdevelopment.bidder.Bidder;
 import com.cbmwebdevelopment.output.ItemReceipt;
 import java.io.FileNotFoundException;
@@ -53,7 +54,7 @@ public class CheckoutFXMLController implements Initializable {
     private String bidderId;
 
     @FXML
-    protected void printReceipt(ActionEvent event){
+    protected void printReceipt(ActionEvent event) throws IOException{
         ItemReceipt itemReceipt = new ItemReceipt(bidderIdTextField.getText(), bidderNameTextField.getText(), totalItemsTextField.getText(), totalAmountTextField.getText(), billingAddressTextArea.getText(), bidderItemsTableView);
         itemReceipt.printReceipt(bidderIdTextField.getText());
     }

@@ -4,7 +4,7 @@
 
     <groupId>com.cbmwebdevelopment</groupId>
     <artifactId>AuctionManager</artifactId>
-    <version>0.0.1</version>
+    <version>1.0.3</version>
     <packaging>jar</packaging>
 
     <name>Auctioneer</name>
@@ -180,6 +180,12 @@
             <groupId>org.apache.pdfbox</groupId>
             <artifactId>pdfbox</artifactId>
             <version>2.0.7</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.poi</groupId>
+            <artifactId>poi</artifactId>
+            <version>3.16</version>
             <type>jar</type>
         </dependency>
     </dependencies>

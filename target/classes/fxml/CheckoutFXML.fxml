@@ -71,15 +71,6 @@
                      </image>
                   </ImageView>
                </graphic></Button>
-            <Button alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#printReceipt">
-               <graphic>
-                  <ImageView fitHeight="32.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
-                     <image>
-                        <Image url="@../images/print.png" />
-                     </image>
-                  </ImageView>
-               </graphic>
-            </Button>
         </buttons>
       </ButtonBar>
       <ProgressIndicator fx:id="progressIndicator" visible="false" AnchorPane.bottomAnchor="188.0" AnchorPane.leftAnchor="345.0" AnchorPane.rightAnchor="346.0" AnchorPane.topAnchor="188.0" />

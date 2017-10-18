@@ -6,12 +6,19 @@
 package com.cbmwebdevelopment.alerts;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextInputDialog;
 import javafx.scene.layout.Priority;
 import jfxtras.scene.layout.GridPane;
+import org.controlsfx.dialog.CommandLinksDialog;
+import org.controlsfx.dialog.CommandLinksDialog.CommandLinksButtonType;
 
 /**
  *
@@ -81,5 +88,21 @@ public class Alerts {
         input.setHeaderText(headerText);
         input.setContentText(content);
         return input;
+    }
+    
+    public Dialog commandLinkDialog(String title, String headerText, String content, HashMap<String, HashMap<String, Boolean>> options){
+        
+        List<CommandLinksButtonType> links = new ArrayList<>();
+        options.forEach((buttonTitle, nestedMap)->{
+           nestedMap.forEach((buttonDescription, isDefault)->{
+               links.add(new CommandLinksButtonType(buttonTitle, buttonDescription, isDefault));
+           });
+        });
+        
+        CommandLinksDialog dialog = new CommandLinksDialog(links);
+        dialog.setTitle(title);
+        dialog.setHeaderText(headerText);
+        
+        return dialog;
     }
 }

@@ -7,10 +7,8 @@ package com.cbmwebdevelopment.items;
 
 import com.cbmwebdevelopment.bid.BidFXMLController;
 import com.cbmwebdevelopment.connections.DBConnection;
-import java.io.File;
-import java.io.FileInputStream;
+import com.cbmwebdevelopment.tablecontrollers.ItemsTableController.AllItems;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -18,8 +16,11 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.stream.Collectors;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 
@@ -27,9 +28,6 @@ import javafx.scene.control.Alert.AlertType;
  *
  * @author cmeehan
  */
-import org.apache.commons.net.ftp.FTP;
-import org.apache.commons.net.ftp.FTPClient;
-
 public class Item {
 
     private final String imageSavePath = "http://localhost/auctioneer";
@@ -43,7 +41,7 @@ public class Item {
 
         String sql = null;
         if (controller.itemNumber.trim().isEmpty() || controller.itemNumber == null) {
-            sql = "INSERT INTO AUCTION_ITEMS(NAME, DESCRIPTION, RESERVE, SILENT_AUCTION, LIVE_AUCTION, CLOSED) VALUES(?,?,?,?,?,?,?)";
+            sql = "INSERT INTO AUCTION_ITEMS(NAME, DESCRIPTION, RESERVE, SILENT_AUCTION, LIVE_AUCTION, CLOSED) VALUES(?,?,?,?,?,?)";
             try {
                 PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
                 ps.setString(1, controller.itemName);
@@ -144,9 +142,9 @@ public class Item {
             if (rs.next()) {
                 controller.itemNameTextField.setText(rs.getString("NAME"));
                 controller.itemDescriptionTextField.setText(rs.getString("DESCRIPTION"));
-                if(rs.getBoolean("CLOSED")){
+                if (rs.getBoolean("CLOSED")) {
                     controller.submitWinnerButton.setDisable(true);
-                }else{
+                } else {
                     controller.submitWinnerButton.setDisable(false);
                 }
             }
@@ -159,5 +157,55 @@ public class Item {
                 System.err.println(ex.getMessage());
             }
         }
+    }
+    
+    public ObservableList<AllItems> getAuctionItems(String terms, HashMap<String, String> filters){
+        
+        // The obeservable list to be returned
+        ObservableList<AllItems> data = FXCollections.observableArrayList();
+        
+        Connection conn = new DBConnection().connect();
+        String sql = "SELECT AUCTION_ITEMS.ID, AUCTION_ITEMS.NAME, AUCTION_ITEMS.DESCRIPTION, IF(SILENT_AUCTION = TRUE, 'Silent Auction', 'Live Auction') AS 'TYPE',  IF(CLOSED = TRUE, 'Closed', 'Open') as 'STATUS' FROM AUCTION_ITEMS JOIN BIDS ON AUCTION_ITEMS.ID = BIDS.ITEM_ID";
+        
+        if (terms != null || filters != null){
+            sql += " WHERE ";
+        }
+        
+        if(terms != null){
+            sql += "NAME = ? OR DESCRIPTION = ? OR NAME LIKE ? OR DESCRIPTION LIKE ?";
+        }
+        
+        if(filters != null){
+            if(terms != null){
+                sql += " AND ";
+            }
+            
+            sql += " CLOSED = ? AND SILENT_AUCTION = ? AND LIVE_AUCTION = ?";
+        }
+        
+        try{
+            PreparedStatement ps = conn.prepareStatement(sql);
+            if(terms != null){
+                ps.setString(1, terms);
+                ps.setString(2, terms);
+                ps.setString(3, "%" + terms + "%");
+                ps.setString(4, "%" + terms + "%");
+            }
+            ResultSet rs = ps.executeQuery();
+            if(rs.next()){
+                do{
+                    data.addAll(new AllItems(rs.getString("ID"), rs.getString("NAME"), rs.getString("DESCRIPTION"), rs.getString("TYPE"), rs.getString("STATUS")));
+                }while(rs.next());
+            }
+        }catch(SQLException ex){
+            System.err.println(ex.getMessage());
+        }finally{
+            try{
+                conn.close();
+            }catch(SQLException ex){
+                System.err.println(ex.getMessage());
+            }
+        }
+        return data;        
     }
 }

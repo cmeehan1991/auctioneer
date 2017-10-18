@@ -6,41 +6,30 @@
 package com.cbmwebdevelopment.output;
 
 import com.cbmwebdevelopment.alerts.Alerts;
-import com.cbmwebdevelopment.checkout.CheckoutItemTableViewController.ItemData;
+import com.cbmwebdevelopment.tablecontrollers.CheckoutItemTableViewController.ItemData;
 import static com.cbmwebdevelopment.main.MainApp.CURRENCY_FORMAT;
 import com.itextpdf.io.font.FontConstants;
-import static com.itextpdf.io.font.FontConstants.TIMES_BOLD;
-import static com.itextpdf.io.font.FontConstants.TIMES_ROMAN;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.layout.Document;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.border.Border;
-import com.itextpdf.layout.element.AreaBreak;
 import com.itextpdf.layout.element.Cell;
 import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
 import com.itextpdf.layout.element.Table;
-import com.itextpdf.layout.element.Text;
-import com.itextpdf.layout.property.AreaBreakType;
 import com.itextpdf.layout.property.HorizontalAlignment;
 import java.awt.EventQueue;
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import java.awt.print.PageFormat;
-import java.awt.print.Paper;
-import java.awt.print.Printable;
 import java.awt.print.PrinterException;
 import java.awt.print.PrinterJob;
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Properties;
 import javafx.collections.ObservableList;
 import javafx.scene.control.Alert;
@@ -62,8 +51,6 @@ import javax.mail.internet.MimeMultipart;
 import javax.mail.util.ByteArrayDataSource;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.printing.PDFPageable;
-import org.apache.pdfbox.rendering.ImageType;
-import org.apache.pdfbox.rendering.PDFRenderer;
 
 /**
  *
@@ -77,6 +64,7 @@ public class ItemReceipt {
     private final String OS = System.getProperty("os.name");
     private PrinterJob job;
     private String temp;
+    private File file;
 
     public ItemReceipt(String bidderId, String bidderName, String numberOfItems, String totalDue, String billingAddress, TableView tableView) {
         this.bidderId = bidderId;
@@ -87,6 +75,10 @@ public class ItemReceipt {
         this.tableView = tableView;
     }
 
+    /**
+     * Gets the AWT event back onto the main UI thread. 
+     * @param run 
+     */
     private static void invokeInUI(Runnable run) {
         if (EventQueue.isDispatchThread()) {
             run.run();
@@ -99,8 +91,9 @@ public class ItemReceipt {
      * Print the receipt.
      *
      * @param id
+     * @throws java.io.IOException
      */
-    public void printReceipt(String id) {
+    public void printReceipt(String id) throws IOException {
         job = PrinterJob.getPrinterJob();
         PageFormat format = job.defaultPage();
 
@@ -113,15 +106,16 @@ public class ItemReceipt {
         if (OS.contains("Windows")) {
             temp = "/local/" + id + ".pdf";
         }
-
         invokeInUI(() -> {
             try {
+                pdf(temp, null);
                 job.setPageable(new PDFPageable(printablePdf(temp)));
                 // Open the print dialog
                 if (job.printDialog()) {
                     job.print();
                 }
-            } catch (PrinterException | IOException | NullPointerException ex) {
+            } catch (PrinterException | IOException | NullPointerException | ParseException ex) {
+                System.out.println("Error: ");
                 System.err.println(ex.getMessage());
                 ArrayList<String> errors = new ArrayList<>();
                 errors.add(ex.getMessage());
@@ -129,9 +123,18 @@ public class ItemReceipt {
                 alert.showAndWait();
             }
         });
-
     }
 
+    /**
+     * Creates and email client to email the invoice in PDF format to either one or multiple recipients. 
+     * Recipients must be separated by a semicolon (;)
+     * 
+     * @param id
+     * @param recipient
+     * @throws IOException
+     * @throws FileNotFoundException
+     * @throws ParseException 
+     */
     public void emailPDF(String id, String recipient) throws IOException, FileNotFoundException, ParseException {
         // Set up the email
         String smtpHost = "mail.cbmwebdevelopment.com";
@@ -222,6 +225,12 @@ public class ItemReceipt {
         }
     }
 
+    /**
+     * Saves the invoice as a PDF to the user's machine.
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ParseException 
+     */
     public void saveAsPDF() throws FileNotFoundException, IOException, ParseException {
         FileChooser fc = new FileChooser();
         System.out.println(USER_HOME);
@@ -232,16 +241,33 @@ public class ItemReceipt {
         pdf(saveTo, null);
     }
 
+    /**
+     * Creates a PDDocument to be read by the PrinterJob. 
+     * @param dest
+     * @return
+     * @throws IOException 
+     */
     public PDDocument printablePdf(String dest) throws IOException {
         PDDocument pdf = PDDocument.load(new File(dest));
         return pdf;
     }
 
-    public Document pdf(String fileDest, ByteArrayOutputStream byteDest) throws FileNotFoundException, IOException, ParseException {
-        System.out.println("Creating Document");
+    /**
+     * Logic for creating the invoice PDF. 
+     * Must have either String file destination or ByteArrayOutputStream destination. 
+     * Whichever one is not used must be null
+     * 
+     * @param fileDest - null or String type file destination
+     * @param byteDest - null or ByteArrayOutputStream
+     * @return PDF created and saved to the specified destination
+     * 
+     * @throws FileNotFoundException
+     * @throws IOException
+     * @throws ParseException 
+     */
+    private Document pdf(String fileDest, ByteArrayOutputStream byteDest) throws FileNotFoundException, IOException, ParseException {
         PdfWriter writer;
         if (fileDest != null) {
-            System.out.println("File: " + fileDest);
             writer = new PdfWriter(fileDest);
         } else if (byteDest != null) {
             writer = new PdfWriter(byteDest);
@@ -264,12 +290,10 @@ public class ItemReceipt {
         document.add(image);
         document.add(bidderInformationTable());
         document.add(itemTable());
-        document.add(new Paragraph("Thank you for your contribution to the continued success of The Pregnancy Center of Hilton Head")
+        document.add(new Paragraph("Thank you for your contribution to the continued success of The Pregnancy Center and Clinic of the Low Country.")
                 .setFontSize(18)
                 .setFont(PdfFontFactory.createFont(FontConstants.TIMES_BOLD))
                 .setUnderline());
-        document.add(new AreaBreak(AreaBreakType.NEXT_PAGE));
-        document.add(disclaimer());
 
         document.close();
 
@@ -278,6 +302,14 @@ public class ItemReceipt {
         return document;
     }
 
+    /**
+     * Bidder information such as billing address, name, etc.
+     * 
+     * @return PDF Table
+     * 
+     * @throws IOException
+     * @throws ParseException 
+     */
     private Table bidderInformationTable() throws IOException, ParseException {
         Table table = new Table(3);
         table.setWidthPercent(100f);
@@ -337,6 +369,14 @@ public class ItemReceipt {
         return table;
     }
 
+    /**
+     * Invoice item table. 
+     * Contains each item won by the specified bidder. 
+     * 
+     * @return PDF Table
+     * 
+     * @throws IOException 
+     */
     private Table itemTable() throws IOException {
         Table table = new Table(4);
         table.setWidthPercent(100f);
@@ -402,24 +442,5 @@ public class ItemReceipt {
         });
 
         return table;
-    }
-
-    public Paragraph disclaimer() throws IOException {
-        Paragraph paragraph = new Paragraph();
-
-        paragraph.add(
-                new Text("Terms & Conditions\n")
-                        .setFontSize(18)
-                        .setFont(PdfFontFactory.createFont(FontConstants.TIMES_BOLD)));
-
-        paragraph.add(new Text("CONDITIONS OF SALES - ALL ITEMS ARE SOLD AS IS WITH NO WARRANTY, EXPRESSED OR IMPLIED, INCLUDING BUT NOT LIMITED TO ANY WARRANTY OF FITNESS FOR ANY PARTICULAR PURPOSE OR MERCHANTABILITY.\n\n")
-                .setFont(PdfFontFactory.createFont(TIMES_BOLD))
-                .setFontSize(12));
-
-        paragraph.add(new Text("NO WARRANTY EITHER IS MADE WITH RESPECT TO THE ACCURACY OF ANY INFORMATION PROVIDED TO BUYERS REGARDING ITEMS, PROVIDED IN WRITTEN OR IMAGE FORM AND BUYER SHOULD NOT BASE THEIR BIDS SOLELY ON INFORMATION PROVIDED FOR BUYER'S CONVENIENCE.\nNO REFUNDS UNDER ANY CONDITION.")
-                .setFont(PdfFontFactory.createFont(TIMES_ROMAN))
-                .setFontSize(12));
-
-        return paragraph;
     }
 }

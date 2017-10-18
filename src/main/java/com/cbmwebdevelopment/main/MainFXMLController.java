@@ -6,6 +6,7 @@ import com.cbmwebdevelopment.bid.ViewBidsMain;
 import com.cbmwebdevelopment.bidder.BidderMain;
 import com.cbmwebdevelopment.checkout.CheckoutMain;
 import com.cbmwebdevelopment.items.ItemMain;
+import com.cbmwebdevelopment.items.ViewItemsMain;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Optional;
@@ -15,14 +16,20 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.control.TextInputDialog;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
 public class MainFXMLController implements Initializable {
 
+    @FXML 
+    public AnchorPane mainAnchorPane, navigationAnchorPane;
+    
     public Group group;
     private BidMain bidMain;
     private ItemMain itemMain;
     private ViewBidsMain viewBidsMain;
+    private  ViewItemsMain viewItems;
+    
 
     @FXML
     protected void addNewBidder(ActionEvent event) throws IOException {
@@ -86,7 +93,7 @@ public class MainFXMLController implements Initializable {
         itemMain.group = group;
         itemMain.start(new Stage());
     }
-
+    
     @FXML
     protected void viewEditItems(ActionEvent event) throws IOException {
         TextInputDialog dialog = new TextInputDialog();
@@ -102,6 +109,13 @@ public class MainFXMLController implements Initializable {
         itemMain.isNew = false;
         itemMain.group = group;
         itemMain.start(new Stage());
+    }
+    
+    @FXML 
+    protected void viewAllItems(ActionEvent event) throws IOException{
+        viewItems = new ViewItemsMain();
+        viewItems.group = group;
+        viewItems.start(new Stage());
     }
 
     @Override

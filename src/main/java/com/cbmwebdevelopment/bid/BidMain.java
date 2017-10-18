@@ -33,7 +33,7 @@ public class BidMain extends Application {
         window.setLayoutX(10);
         window.setLayoutY(100);
         window.setPrefHeight(250);
-        window.setPrefWidth(600);
+        window.setPrefWidth(650);
         window.getRightIcons().add(new CloseIcon(window));
 
         window.getContentPane().getChildren().add(root);

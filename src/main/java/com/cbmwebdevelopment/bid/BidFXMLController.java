@@ -9,28 +9,20 @@ import com.cbmwebdevelopment.alerts.Alerts;
 import com.cbmwebdevelopment.items.Item;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Priority;
-import jfxtras.scene.layout.GridPane;
-import static com.cbmwebdevelopment.main.MainApp.CURRENCY_FORMAT;
 import java.text.ParseException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import javafx.scene.control.ProgressIndicator;
-import javafx.scene.control.TextFormatter;
 import javafx.scene.input.KeyCode;
-import jfxtras.labs.scene.control.BigDecimalField;
 
 /**
  * FXML Controller class
@@ -40,10 +32,7 @@ import jfxtras.labs.scene.control.BigDecimalField;
 public class BidFXMLController implements Initializable {
 
     @FXML
-    public TextField itemNumberTextField, itemNameTextField, itemDescriptionTextField, bidderNumberTextField;
-    
-    @FXML
-    public BigDecimalField bidAmountTextField;
+    public TextField itemNumberTextField, itemNameTextField, itemDescriptionTextField, bidderNumberTextField, bidAmountTextField;
 
     @FXML
     Label itemNumberLabel, itemNameLabel, itemDescriptionLabel, bidderNumberLabel, bidAmountLabel;
@@ -56,6 +45,8 @@ public class BidFXMLController implements Initializable {
 
     protected String itemNumber, itemName, itemDescription, bidderNumber, bidAmount;
     private ArrayList<String> requiredFields;
+    protected boolean isNew;
+    public Alert alert = new Alerts().informationAlert("Item Doesn't Exist", "Item doesn't exist.", "The item you entered does not exist. Please try again.");
 
     /**
      * Validate that the required fields have been filled in.
@@ -108,14 +99,17 @@ public class BidFXMLController implements Initializable {
         bidAmount = bidAmountTextField.getText();
     }
 
+    @FXML 
+    protected void itemSearch(ActionEvent event){
+        System.out.println("Get item information");
+        getItemInformation(itemNumberTextField.getText(), this);
+    }
+    
     @FXML
     protected void submitBid(ActionEvent event) throws ParseException {
-        System.out.println("Submit Bid");
         if (validateFields()) {
-            bidAmountTextField.setText(CURRENCY_FORMAT.format(Double.parseDouble(CURRENCY_FORMAT.parse(bidAmountTextField.getText()).toString())));
             Bid bid = new Bid();
             bid.submitBid(this);
-            System.out.println("Valid");
         } else {
             System.out.println("Not valid");
             Alert alert = new Alerts().errorAlert("Missing Items", "Missing required items.", "Please correct the following items", requiredFields);
@@ -169,11 +163,20 @@ public class BidFXMLController implements Initializable {
 
         itemNumberTextField.focusedProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal) {
-                itemNameTextField.setDisable(true);
-                itemDescriptionTextField.setDisable(true);
+                itemNameTextField.setDisable(false);
+                itemDescriptionTextField.setDisable(false);
+                itemNameTextField.setEditable(false);
+                itemDescriptionTextField.setEditable(false);
                 bidderNumberTextField.setDisable(true);
                 bidAmountTextField.setDisable(true);
                 submitWinnerButton.setDisable(true);
+            }else{
+                itemNameTextField.setDisable(true);
+                itemDescriptionTextField.setDisable(true);
+                itemNameTextField.clear();
+                itemDescriptionTextField.clear();
+                bidderNumberTextField.clear();
+                bidAmountTextField.clear();
             }
         });
 

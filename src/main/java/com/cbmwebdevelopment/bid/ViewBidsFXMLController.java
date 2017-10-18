@@ -5,11 +5,16 @@
  */
 package com.cbmwebdevelopment.bid;
 
+import com.cbmwebdevelopment.alerts.Alerts;
 import com.cbmwebdevelopment.bid.ViewBidsTableViewController.Bids;
-import com.cbmwebdevelopment.checkout.CheckoutMain;
 import com.cbmwebdevelopment.items.ItemMain;
+import com.cbmwebdevelopment.output.WinningBids;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
+import java.text.ParseException;
+import java.util.HashMap;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.Timer;
 import java.util.concurrent.ExecutorService;
@@ -21,8 +26,11 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextInputDialog;
 import javafx.stage.Stage;
 
 /**
@@ -44,6 +52,30 @@ public class ViewBidsFXMLController implements Initializable {
     @FXML
     protected void refreshFeed(ActionEvent event) {
         refreshTable();
+    }
+    
+    @FXML
+    protected void exportData(ActionEvent event) throws IOException, FileNotFoundException, ParseException{
+        HashMap<String, HashMap<String, Boolean>> options = new HashMap<>();
+        options.put("Send as an Email", new HashMap(){{put("Email the item data to one or multiple recipients.", false);}});
+        options.put("Export to Excel File", new HashMap(){{put("Save the item data to an excel file on your machine.", true);}});
+        Dialog dialog = new Alerts().commandLinkDialog("Export Data", "Export the winning items.", null, options);
+        Optional<ButtonType> result = dialog.showAndWait();
+        
+        WinningBids winningBids = new WinningBids();
+        switch(result.get().getText()){
+            case "Export to Excel File":
+                winningBids.exportWinningBidsToExcel();
+                break;
+            case "Send as an Email":
+                TextInputDialog recipients = new Alerts().inputAlert("Recipients", "Email Recipients", "To:");
+                Optional<String> sendTo = recipients.showAndWait();
+                if(sendTo.isPresent()){
+                    winningBids.emailList(sendTo.get());
+                }
+                break;
+            default:break;
+        }
     }
 
     public void refreshTable() {

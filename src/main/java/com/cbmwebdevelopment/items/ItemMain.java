@@ -5,7 +5,6 @@
  */
 package com.cbmwebdevelopment.items;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import javafx.application.Application;
@@ -14,7 +13,6 @@ import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
-import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import jfxtras.labs.scene.control.window.CloseIcon;
 import jfxtras.labs.scene.control.window.Window;

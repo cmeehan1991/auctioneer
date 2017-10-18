@@ -6,8 +6,10 @@
 package com.cbmwebdevelopment.bidder;
 
 import com.cbmwebdevelopment.alerts.Alerts;
+import com.cbmwebdevelopment.checkout.CheckoutMain;
 import com.cbmwebdevelopment.main.MainApp;
 import static com.cbmwebdevelopment.main.MainApp.ERROR_LABEL;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,8 +17,10 @@ import java.util.ResourceBundle;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Group;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.stage.Stage;
 import org.controlsfx.control.PrefixSelectionComboBox;
 
 /**
@@ -37,7 +41,16 @@ public class BidderFXMLController implements Initializable {
 
     private ArrayList<String> missingItems;
     protected String id, prefix, firstName, lastName, suffix, streetAddress, suite, city, state, postalCode, phone, email;
+    protected Group group;
 
+    @FXML
+    protected void checkOut(ActionEvent event) throws IOException{
+        CheckoutMain checkoutMain = new CheckoutMain();
+        checkoutMain.bidderId = bidderIdTextField.getText();
+        checkoutMain.group = group;
+        checkoutMain.start(new Stage());
+    }
+    
     @FXML
     protected void saveBidder(ActionEvent event) {
         if (validateFields()) {
